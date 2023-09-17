@@ -1,10 +1,11 @@
 #include "postgres.h"
 
 #include "fmgr.h"
-#include "libpq/libpq.h"
 #include "miscadmin.h"
-#include "storage/backendid.h"
 #include "utils/elog.h"
+
+#include <bits/time.h>
+#include <time.h>
 
 PG_MODULE_MAGIC;
 
@@ -70,6 +71,7 @@ Datum play_badapple(PG_FUNCTION_ARGS) {
   int numframes = 0;
   int numlines = 0;
   char badapple_frame[4000];
+  struct timespec start_tm;
 
   get_share_path(my_exec_path, sharepath);
   snprintf(badapple_txt, MAXPGPATH, "%s/extension/badapple.txt", sharepath);
@@ -79,9 +81,26 @@ Datum play_badapple(PG_FUNCTION_ARGS) {
     numlines++;
   numframes = numlines / 30;
 
-  for (int frame = 0; frame < numframes; frame++) {
+  if (clock_gettime(CLOCK_MONOTONIC, &start_tm) != 0)
+    ereport(ERROR, (errmsg("clock_gettime() failed due to: %m")));
+
+  for (;;) {
+    int frame;
     int len = 0;
+    float elapsed;
+    struct timespec current_tm;
     MemSet(badapple_frame, 0, sizeof(badapple_frame));
+
+    if (clock_gettime(CLOCK_MONOTONIC, &current_tm) != 0)
+      ereport(ERROR, (errmsg("clock_gettime() failed due to: %m")));
+
+    elapsed = (current_tm.tv_sec - start_tm.tv_sec) +
+              ((current_tm.tv_nsec - start_tm.tv_nsec) / 1000000000.0);
+    frame = (int)(elapsed * 10);
+
+    if (frame >= 2180)
+      break;
+
     /* 30 lines per frame. */
     for (int row = 0; row < 30; ++row) {
       memcpy(&badapple_frame[len], badapple_lines[frame * 30 + row],
@@ -92,7 +111,7 @@ Datum play_badapple(PG_FUNCTION_ARGS) {
     ereport(NOTICE, (errmsg("\033c" /* Reset device. */
                             "%s",
                             badapple_frame)));
-    pg_usleep(20000);
+    pg_usleep(50000);
     CHECK_FOR_INTERRUPTS();
   }
 
