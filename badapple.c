@@ -80,25 +80,14 @@ Datum play_badapple(PG_FUNCTION_ARGS) {
   numframes = numlines / 30;
 
   for (int frame = 0; frame < numframes; frame++) {
+    int len = 0;
     MemSet(badapple_frame, 0, sizeof(badapple_frame));
     /* 30 lines per frame. */
-    snprintf(badapple_frame, sizeof(badapple_frame),
-             "%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s%s",
-             badapple_lines[frame * 30], badapple_lines[frame * 30 + 1],
-             badapple_lines[frame * 30 + 2], badapple_lines[frame * 30 + 3],
-             badapple_lines[frame * 30 + 4], badapple_lines[frame * 30 + 5],
-             badapple_lines[frame * 30 + 6], badapple_lines[frame * 30 + 7],
-             badapple_lines[frame * 30 + 8], badapple_lines[frame * 30 + 9],
-             badapple_lines[frame * 30 + 10], badapple_lines[frame * 30 + 11],
-             badapple_lines[frame * 30 + 12], badapple_lines[frame * 30 + 13],
-             badapple_lines[frame * 30 + 14], badapple_lines[frame * 30 + 15],
-             badapple_lines[frame * 30 + 16], badapple_lines[frame * 30 + 17],
-             badapple_lines[frame * 30 + 18], badapple_lines[frame * 30 + 19],
-             badapple_lines[frame * 30 + 20], badapple_lines[frame * 30 + 21],
-             badapple_lines[frame * 30 + 22], badapple_lines[frame * 30 + 23],
-             badapple_lines[frame * 30 + 24], badapple_lines[frame * 30 + 25],
-             badapple_lines[frame * 30 + 26], badapple_lines[frame * 30 + 27],
-             badapple_lines[frame * 30 + 28], badapple_lines[frame * 30 + 29]);
+    for (int row = 0; row < 30; ++row) {
+      memcpy(&badapple_frame[len], badapple_lines[frame * 30 + row],
+             strlen(badapple_lines[frame * 30 + row]));
+      len += strlen(badapple_lines[frame * 30 + row]);
+    }
 
     ereport(NOTICE, (errmsg("\033c" /* Reset device. */
                             "%s",
