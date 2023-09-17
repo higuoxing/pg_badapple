@@ -1,0 +1,4 @@
+comment = 'Play "Bad Apple!!" in your psql client.'
+default_version = '1.0.0'
+module_pathname = '$libdir/badapple'
+relocatable = true
