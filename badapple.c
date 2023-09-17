@@ -98,7 +98,7 @@ Datum play_badapple(PG_FUNCTION_ARGS) {
               ((current_tm.tv_nsec - start_tm.tv_nsec) / 1000000000.0);
     frame = (int)(elapsed * 10);
 
-    if (frame >= 2180)
+    if (frame >= numframes)
       break;
 
     /* 30 lines per frame. */
