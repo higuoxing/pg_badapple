@@ -14,6 +14,8 @@ make PG_CONFIG=<path to pg_config> install
 -- In psql client.
 CREATE EXTENSION badapple;
 SELECT play_badapple();
+-- OR you like sing, dance, rap and basketball.
+SELECT play_basketball();
 ```
 
 ## Reference
